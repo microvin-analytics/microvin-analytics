@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroVIN Analytics | Automotive Asset Intelligence & Component Pricing</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background-color: #0B0F19; color: #F3F4F6; font-family: system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body>
+
+    <header class="border-b border-gray-800 bg-[#0B0F19]/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
+                    MicroVIN <span class="text-gray-400 font-light text-base">Analytics</span>
+                </span>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
+                <a href="#solutions" class="hover:text-blue-400 transition">Solutions</a>
+                <a href="#data" class="hover:text-blue-400 transition">Data Intelligence</a>
+                <a href="#about" class="hover:text-blue-400 transition">About Infrastructure</a>
+                <a href="#contact" class="hover:text-blue-400 transition">Contact</a>
+            </nav>
+            <a href="#contact" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition shadow-lg shadow-blue-500/20">
+                Request Data Access
+            </a>
+        </div>
+    </header>
+
+    <section class="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center md:text-left md:flex md:items-center md:space-x-12">
+        <div class="md:w-1/2 space-y-6">
+            <div class="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/30 px-3 py-1 rounded-full text-xs text-blue-400 font-medium">
+                <span>Automated System Engine Logistics</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                Automotive Asset Transition Intelligence <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Indexed by Component Value</span>
+            </h1>
+            <p class="text-gray-400 text-base md:text-lg max-w-xl">
+                We capture, structure, and analyze high-yield vehicle recovery data across the US market. Powered by our proprietary, multi-instance **System Engine**, we track active yard movements, verified mileage metrics, and precise core component market valuations during critical inventory transitions.
+            </p>
+            <div class="pt-4 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
+                <a href="#contact" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold text-sm text-center transition shadow-lg shadow-blue-500/20">
+                    Get Data Sample
+                </a>
+                <a href="#solutions" class="border border-gray-700 hover:border-gray-500 text-gray-300 px-6 py-3 rounded-xl font-semibold text-sm text-center transition">
+                    Explore Solutions
+                </a>
+            </div>
+        </div>
+        
+        <div class="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-600/10 to-indigo-600/10 border border-gray-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full"></div>
+            <div class="font-mono text-xs text-gray-400 space-y-2">
+                <p class="text-blue-400">// MicroVIN Premium Lifecycle Data Feed</p>
+                <p><span class="text-indigo-400">{"vin":</span> "1FTFW1EDXNFAXXXXX",</p>
+                <p>&nbsp;&nbsp;<span class="text-indigo-400">"asset_status":</span> "Active Transition Inventory",</p>
+                <p>&nbsp;&nbsp;<span class="text-indigo-400">"verified_mileage":</span> 114205,</p>
+                <p>&nbsp;&nbsp;<span class="text-indigo-400">"asset_location":</span> "Facility Zone 4B, MI",</p>
+                <p>&nbsp;&nbsp;<span class="text-indigo-400">"component_valuation":</span> {</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-indigo-400">"core_parts_pricing":</span> "Optimized Engine/Trans Base",</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-indigo-400">"market_index_rating":</span> "High-Yield Tier 2"</p>
+                <p>&nbsp;&nbsp;},</p>
+                <p>&nbsp;&nbsp;<span class="text-indigo-400">"images_captured":</span> true}</p>
+                <br>
+                <p class="text-green-400">// Real-time query pipeline: Over 500K+ specialized core-pricing records mapped.</p>
+            </div>
+        </div>
+    </section>
+
+    <hr class="border-gray-900 my-12">
+
+    <section id="solutions" class="max-w-7xl mx-auto px-6 py-12">
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+            <h2 class="text-2xl md:text-3xl font-bold">Engineered for Commercial Asset Recovery</h2>
+            <p class="text-gray-400 text-sm">How our indexing infrastructure bridges the gap in automotive asset transition tracking.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 mt-12">
+            <div class="bg-gray-900/40 border border-gray-800/80 p-6 rounded-xl hover:border-gray-700 transition">
+                <div class="w-10 h-10 bg-blue-600/10 border border-blue-500/20 text-blue-400 flex items-center justify-center rounded-lg font-bold mb-4">VIN</div>
+                <h3 class="text-lg font-semibold mb-2">Deterministic Asset Mapping</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Every vehicle asset is strictly verified and mapped against its 17-digit VIN profile, giving your internal database models a flawless primary key for tracking active high-value inventory shifts.</p>
+            </div>
+            <div class="bg-gray-900/40 border border-gray-800/80 p-6 rounded-xl hover:border-gray-700 transition">
+                <div class="w-10 h-10 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center rounded-lg font-bold mb-4">$$</div>
+                <h3 class="text-lg font-semibold mb-2">Component Pricing & Valuation</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Our advanced **System Engine** extracts deeply localized data on vehicle condition parameters including mileage records, visual verification, and chronological tracking of dynamic core part valuations across processing hubs.</p>
+            </div>
+            <div class="bg-gray-900/40 border border-gray-800/80 p-6 rounded-xl hover:border-gray-700 transition">
+                <div class="w-10 h-10 bg-purple-600/10 border border-purple-500/20 text-purple-400 flex items-center justify-center rounded-lg font-bold mb-4">API</div>
+                <h3 class="text-lg font-semibold mb-2">Automated Corporate Delivery</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Skip the manual indexing friction. Our high-performance data logistics pipeline structures fragmented yard metrics directly into standardized, production-ready corporate JSON or Excel formats.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="data" class="bg-gray-900/20 border-y border-gray-900 py-16">
+        <div class="max-w-7xl mx-auto px-6 lg:flex lg:items-center lg:justify-between">
+            <div class="lg:w-1/2 space-y-4">
+                <h2 class="text-2xl md:text-3xl font-bold">High-Fidelity Data Logistics</h2>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    In the automotive parts logistics and resource recovery sectors, precision is everything. MicroVIN Analytics focuses exclusively on continuous tracking of active asset reallocations. By indexing precise facility locations, vehicle utilization metrics (mileage), and component pricing baselines, we deliver refined datasets that seamlessly fuel corporate business intelligence platforms.
+                </p>
+            </div>
+            <div class="mt-8 lg:mt-0 lg:w-5/12 grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-900/60 border border-gray-800 rounded-xl">
+                    <div class="text-2xl font-bold text-blue-400">4.4M+</div>
+                    <div class="text-xs text-gray-400 mt-1">Total Transition Profiles</div>
+                </div>
+                <div class="p-4 bg-gray-900/60 border border-gray-800 rounded-xl">
+                    <div class="text-2xl font-bold text-indigo-400">500K+</div>
+                    <div class="text-xs text-gray-400 mt-1">Deep Valuation Records</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="max-w-7xl mx-auto px-6 py-16">
+        <div class="max-w-3xl space-y-4">
+            <h2 class="text-2xl md:text-3xl font-bold">Engineered for Automotive Supply Chain Clarity</h2>
+            <p class="text-gray-400 text-sm leading-relaxed">
+                MicroVIN Analytics was established by backend systems architects to solve the structural opacity within the automotive asset disposal and core supply chain markets. Moving away from manual logging and legacy systems, we built an advanced automated processing framework. This high-frequency **System Engine** monitors asset shifts and component pricing indices across critical recovery networks, converting unstructured yard arrivals into predictable market analytics.
+            </p>
+        </div>
+    </section>
+
+    <section id="contact" class="max-w-3xl mx-auto px-6 py-16 text-center">
+        <div class="bg-gradient-to-b from-gray-900 to-[#0F1422] border border-gray-800 rounded-2xl p-8 md:p-12 space-y-6">
+            <h2 class="text-2xl md:text-3xl font-bold">Request a Corporate Data Sample</h2>
+            <p class="text-gray-400 text-sm max-w-md mx-auto">
+                Are you an auto recycler, high-volume core buyer, or parts logistics analyst? Contact us to receive a structured sample dataset built to your precise regional requirements.
+            </p>
+            <div class="pt-4 max-w-md mx-auto">
+                <a href="mailto:info@microvinanalytics.com?subject=Corporate Asset Data Sample Request" class="w-full inline-block bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-xl font-bold text-sm transition">
+                    Contact Procurement Feed
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-gray-900 bg-[#060912] py-8 text-center text-xs text-gray-500">
+        <p>&copy; 2026 MicroVIN Analytics LLC. All rights reserved. Managed Automotive Logistics Informatics.</p>
+    </footer>
+
+</body>
+</html>
