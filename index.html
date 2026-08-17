@@ -5,198 +5,1515 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>MicroVIN Analytics | Automotive Asset Intelligence</title>
+    <!-- No-flash theme: reads localStorage before paint -->
+    <script>
+        (function() {
+            try {
+                if (localStorage.getItem('microvin-theme') === 'light') {
+                    document.documentElement.classList.add('light');
+                }
+            } catch(e) {}
+        })();
+    </script>
 
-    <!-- THIS IS THE NEW FAVICON LINK THAT REPLACES THE DEFAULT EARTH/GLOBE IN THE BROWSER TAB -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 48 48' width='38' height='38' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='8' y='8' width='32' height='32' rx='8' fill='%23020617' stroke='%2322D3EE' stroke-width='2'/%3E%3Cpath d='M14 8V4M24 8V4M34 8V4' stroke='%2338BDF8' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M14 44V40M24 44V40M34 44V40' stroke='%2338BDF8' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M8 14H4M8 24H4M8 34H4' stroke='%2338BDF8' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M44 14H40M44 24H40M44 34H40' stroke='%2338BDF8' stroke-width='2' stroke-linecap='round'/%3E%3Crect x='14' y='14' width='20' height='20' rx='4' fill='%230F172A' stroke='%232DD4BF' stroke-width='1.5'/%3E%3Ctext x='24' y='27' text-anchor='middle' font-size='9' font-family='ui-monospace, Menlo, monospace' font-weight='800' fill='%23CFFAFE' letter-spacing='1'%3EVIN%3C/text%3E%3Cpath d='M10 24H38' stroke='%23A5F3FC' stroke-width='1' opacity='0.4' stroke-dasharray='2 2'/%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="vin-favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="vin-icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="vin-icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="shortcut icon" href="favicon-32.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#020617" />
+    <meta property="og:image" content="7391ac95-d249-4149-aafd-9d9c71da344d.jpeg" />
+    <meta name="twitter:image" content="7391ac95-d249-4149-aafd-9d9c71da344d.jpeg" />
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <style>
+        /* ===== DARK MODE DEFAULTS ===== */
         :root {
-          --bg: #020617;
-          --cyan: #22d3ee;
-          --teal: #2dd4bf;
-          --blue: #38bdf8;
-          --white: #f8fafc;
-          --border: rgba(255, 255, 255, 0.05);
+            --bg: #020617;
+            --surface: #0f172a;
+            --card: rgba(15, 23, 42, 0.7);
+            --cyan: #22d3ee;
+            --teal: #2dd4bf;
+            --blue: #38bdf8;
+            --white: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.06);
+            --header-bg: rgba(2, 6, 23, 0.88);
+            --drawer-bg: #0b1120;
+            --marquee-item-bg: rgba(255,255,255,0.04);
+            --marquee-item-border: rgba(255,255,255,0.08);
+            --section-alt-bg: rgba(15,23,42,0.2);
         }
 
-        * {
-          box-sizing: border-box;
+        /* ===== LIGHT MODE OVERRIDES ===== */
+        html.light {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --card: rgba(255, 255, 255, 0.85);
+            --cyan: #0891b2;
+            --teal: #0d9488;
+            --blue: #2563eb;
+            --white: #0f172a;
+            --text-muted: #64748b;
+            --border: rgba(0, 0, 0, 0.08);
+            --header-bg: rgba(240, 244, 248, 0.92);
+            --drawer-bg: #ffffff;
+            --marquee-item-bg: rgba(15, 23, 42, 0.05);
+            --marquee-item-border: rgba(15, 23, 42, 0.16);
+            --section-alt-bg: #e9eef5;
         }
+
+        * { box-sizing: border-box; }
 
         html {
-          scroll-behavior: smooth;
-          overflow-x: hidden;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
         }
 
         body {
-          margin: 0;
-          width: 100%;
-          overflow-x: hidden;
-          background: var(--bg);
-          color: var(--white);
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0;
+            width: 100%;
+            overflow-x: hidden;
+            background: var(--bg);
+            color: var(--white);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        button, a {
-          -webkit-tap-highlight-color: transparent;
-        }
+        button, a { -webkit-tap-highlight-color: transparent; }
+        svg { display: block; max-width: 100%; }
 
-        svg {
-          display: block;
-          max-width: 100%;
-        }
-
+        /* ===== PAGE BACKGROUND ===== */
         .page-bg {
-          min-height: 100vh;
-          background-color: var(--bg);
-          background-image:
-            radial-gradient(circle at 15% 40%, rgba(34, 211, 238, 0.04), transparent 35%),
-            radial-gradient(circle at 85% 20%, rgba(59, 130, 246, 0.04), transparent 35%),
-            radial-gradient(circle at 50% 80%, rgba(45, 212, 191, 0.03), transparent 40%);
+            min-height: 100vh;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 15% 40%, rgba(34, 211, 238, 0.04), transparent 35%),
+                radial-gradient(circle at 85% 20%, rgba(59, 130, 246, 0.04), transparent 35%),
+                radial-gradient(circle at 50% 80%, rgba(45, 212, 191, 0.03), transparent 40%);
+        }
+
+        html.light .page-bg {
+            background-image:
+                radial-gradient(circle at 15% 40%, rgba(8, 145, 178, 0.06), transparent 35%),
+                radial-gradient(circle at 85% 20%, rgba(37, 99, 235, 0.06), transparent 35%),
+                radial-gradient(circle at 50% 80%, rgba(13, 148, 136, 0.05), transparent 40%);
         }
 
         .page-bg::before {
-          content: "";
-          position: fixed;
-          inset: 0;
-          z-index: -2;
-          pointer-events: none;
-          opacity: 0.3;
-          background-image:
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-          background-size: 40px 40px;
-          mask-image: linear-gradient(to bottom, black 0%, transparent 80%);
-          -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 80%);
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            opacity: 0.3;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: linear-gradient(to bottom, black 0%, transparent 80%);
+            -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 80%);
         }
 
-        /* Glass Header */
+        html.light .page-bg::before {
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+        }
+
+        /* ===== GLASS HEADER ===== */
         .glass-header {
-          background: rgba(2, 6, 23, 0.85);
-          border-bottom: 1px solid var(--border);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Buttons */
+        /* Floating header on scroll */
+        .glass-header.is-floating {
+            top: 10px !important;
+            left: 16px !important;
+            right: 16px !important;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+
+        html.light .glass-header.is-floating {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .glass-header.is-floating .glass-header-inner {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .header-company-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            overflow: hidden;
+            border-radius: 999px;
+            box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.14);
+        }
+
+        .header-company-logo img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 999px;
+        }
+
+        html.light .header-company-logo {
+            box-shadow: 0 0 0 1px rgba(8, 145, 178, 0.14);
+        }
+
+        /* ===== LIGHT MODE TEXT OVERRIDES ===== */
+        html.light .text-white { color: #0f172a !important; }
+        html.light .text-slate-300 { color: #1f2937 !important; }
+        html.light .text-slate-400 { color: #334155 !important; }
+        html.light .text-slate-500 { color: #475569 !important; }
+        html.light .text-cyan-300 { color: #0e7490 !important; }
+        html.light .text-cyan-400 { color: #0891b2 !important; }
+        html.light .text-teal-300 { color: #0f766e !important; }
+        html.light .text-teal-400 { color: #0d9488 !important; }
+        html.light .text-teal-100\/90 { color: #0f766e !important; font-weight: 600; }
+        html.light .text-teal-200\/90 { color: #115e59 !important; }
+        html.light .text-blue-300 { color: #1d4ed8 !important; }
+        html.light .text-emerald-400 { color: #16a34a !important; }
+        html.light .text-cyan-200\/90 { color: #164e63 !important; }
+
+        /* ===== LIGHT MODE BACKGROUND OVERRIDES ===== */
+        html.light .bg-\[#020617\] { background-color: #f0f4f8 !important; }
+        html.light .bg-slate-900\/40 { background: rgba(255,255,255,0.92) !important; }
+        html.light .bg-slate-900\/60 { background: rgba(255,255,255,0.96) !important; }
+        html.light .bg-slate-900\/20 { background: rgba(226,232,240,0.55) !important; }
+        html.light .bg-slate-900\/50 { background: rgba(255,255,255,0.94) !important; }
+        html.light .bg-\[#01040f\] { background-color: #e2e8f0 !important; }
+        html.light .bg-black\/50 { background: rgba(0,0,0,0.06) !important; }
+        html.light .bg-white\/\[0\.02\] { background: rgba(0,0,0,0.02) !important; }
+
+        html.light .border-white\/5 { border-color: rgba(0,0,0,0.07) !important; }
+        html.light .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
+        html.light .border-cyan-500\/20 { border-color: rgba(8,145,178,0.25) !important; }
+        html.light .border-cyan-500\/30 { border-color: rgba(8,145,178,0.3) !important; }
+        html.light .border-teal-500\/20 { border-color: rgba(13,148,136,0.25) !important; }
+        html.light .border-teal-500\/30 { border-color: rgba(13,148,136,0.3) !important; }
+        html.light .border-blue-500\/20 { border-color: rgba(37,99,235,0.25) !important; }
+        html.light .border-t { border-top-color: rgba(0,0,0,0.08) !important; }
+        html.light .border-y { border-top-color: rgba(0,0,0,0.08) !important; border-bottom-color: rgba(0,0,0,0.08) !important; }
+
+        html.light .bg-cyan-500\/10 { background: rgba(8,145,178,0.1) !important; }
+        html.light .bg-teal-500\/10 { background: rgba(13,148,136,0.1) !important; }
+        html.light .bg-blue-500\/10 { background: rgba(37,99,235,0.1) !important; }
+
+        html.light .from-slate-900 { --tw-gradient-from: #f1f5f9 !important; }
+        html.light .to-\[#020617\] { --tw-gradient-to: #e2e8f0 !important; }
+
+        /* ===== BUTTONS ===== */
         .primary-light-btn {
-          background: #f8fafc;
-          color: #020617;
-          box-shadow: 0 0 20px rgba(248, 250, 252, 0.15);
-          transition: background-color 0.2s, transform 0.2s;
+            background: #0f172a;
+            color: #f8fafc;
+            box-shadow: 0 0 20px rgba(15, 23, 42, 0.25);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        html.light .primary-light-btn {
+            background: #0f172a;
+            color: #f8fafc;
         }
 
         .primary-light-btn:hover {
-          background: #ffffff;
-          transform: translateY(-2px);
+            background: #1e293b;
+            transform: translateY(-2px);
         }
 
         .secondary-light-btn {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #e2e8f0;
-          transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        html.light .secondary-light-btn {
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.12);
+            color: #334155;
         }
 
         .secondary-light-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.2);
-          transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
-        /* Right Side Network Stage - Completely stripped of all moving parts */
+        html.light .secondary-light-btn:hover {
+            background: rgba(0,0,0,0.07);
+        }
+
+        /* ===== NETWORK STAGE ===== */
         .network-stage {
-          border-radius: 2rem;
-          position: relative;
-          overflow: hidden;
-          background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(2, 6, 23, 0.9));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: 0 30px 60px -15px rgba(0,0,0,0.6);
+            border-radius: 2rem;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.6), rgba(2, 6, 23, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.6);
         }
 
-        /* Glass Dashboard Card */
+        html.light .network-stage {
+            background: linear-gradient(145deg, rgba(241,245,249,0.9), rgba(226,232,240,0.95));
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.12);
+        }
+
+        /* ===== DASHBOARD CARD ===== */
         .dashboard-card {
-          position: relative;
-          z-index: 5;
-          width: 100%;
-          min-height: 480px; /* Hard-locked height prevents jumping when tabs switch */
-          background: rgba(15, 23, 42, 0.85); /* More solid to prevent background bleed issues */
-          border: 1px solid rgba(56, 189, 248, 0.2);
-          border-radius: 24px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          overflow: hidden;
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            min-height: 480px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            overflow: hidden;
         }
 
-        /* Static top highlight replaces the broken animated scan line */
+        html.light .dashboard-card {
+            background: rgba(255,255,255,0.95);
+            border: 1px solid rgba(8,145,178,0.2);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.12);
+        }
+
+        html.light .dashboard-card .bg-slate-900\/80 { background: rgba(248,250,252,0.95) !important; }
+        html.light .dashboard-card .text-slate-400 { color: #475569 !important; }
+
         .static-highlight {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 100px;
-          background: linear-gradient(to bottom, rgba(34, 211, 238, 0.1), transparent);
-          pointer-events: none;
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(34, 211, 238, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        html.light .static-highlight {
+            background: linear-gradient(to bottom, rgba(8,145,178,0.08), transparent);
         }
 
         .mini-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
         }
 
-        /* Switch Tabs - Removed blur and heavy box shadows to stop flicker */
-        .feed-switch-btn {
-          transition: background-color 0.2s, color 0.2s;
+        html.light .mini-card {
+            background: rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.07);
         }
+
+        /* ===== FEED TABS ===== */
+        .feed-switch-btn { transition: background-color 0.2s, color 0.2s; }
 
         .feed-switch-btn.active {
-          background: rgba(34, 211, 238, 0.2);
-          color: #22d3ee;
+            background: rgba(34, 211, 238, 0.2);
+            color: #22d3ee;
         }
 
-        /* Bulletproof Panel Switching (No Grids, No Opacity Overlaps) */
-        .feed-panel {
-          display: none;
-          animation: simpleFade 0.3s ease-in-out;
+        html.light .feed-switch-btn.active {
+            background: rgba(8,145,178,0.15);
+            color: #0891b2;
         }
 
-        .feed-panel.active {
-          display: block;
-        }
+        .feed-panel { display: none; animation: simpleFade 0.3s ease-in-out; }
+        .feed-panel.active { display: block; }
 
         @keyframes simpleFade {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
-        /* JSON Window Styling */
+        /* ===== JSON WINDOW ===== */
         .json-window {
-          border-radius: 16px;
-          overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: #0d1117;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #0d1117;
         }
 
-        .json-code {
-          margin: 0;
-          color: #dbeafe;
-          white-space: pre-wrap;
-          word-break: break-word;
+        .json-window-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: #161b22;
         }
 
+        .json-window-body {
+            padding: 1rem;
+            overflow-x: auto;
+            background: #0d1117;
+        }
+
+        html.light .json-window {
+            background: #f8fafc;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        html.light .json-window-topbar {
+            background: linear-gradient(180deg, #f8fafc 0%, #e9eef5 100%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+        }
+
+        html.light .json-window-body {
+            background: #f8fafc;
+        }
+
+        .json-code { margin: 0; color: #dbeafe; white-space: pre-wrap; word-break: break-word; }
         .json-key { color: #9CDCFE; }
         .json-string { color: #CE9178; }
         .json-number { color: #B5CEA8; }
         .json-bool { color: #569CD6; }
         .json-comment { color: #64748b; }
+
+        html.light .json-code { color: #1e293b; }
+        html.light .json-key { color: #0284c7; }
+        html.light .json-string { color: #b45309; }
+        html.light .json-number { color: #16a34a; }
+        html.light .json-bool { color: #2563eb; }
+        html.light .json-comment { color: #94a3b8; }
+        html.light .json-window-topbar .bg-slate-600 { background-color: #94a3b8 !important; }
+        html.light .json-window-topbar .text-slate-400 { color: #64748b !important; }
+
+        html.light .bg-\[#161b22\] { background: #e2e8f0 !important; }
+        html.light .bg-\[#0d1117\] { background: #f1f5f9 !important; }
+
+        /* ===== THEME TOGGLE BUTTON ===== */
+        .theme-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #f8fafc;
+        }
+
+        html.light .theme-toggle-btn { color: #64748b; }
+        html.light .theme-toggle-btn:hover { background: rgba(0,0,0,0.06); color: #0f172a; }
+
+        /* ===== HAMBURGER BUTTON ===== */
+        .hamburger-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .hamburger-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #f8fafc;
+        }
+
+        html.light .hamburger-btn { color: #64748b; }
+        html.light .hamburger-btn:hover { background: rgba(0,0,0,0.06); color: #0f172a; }
+
+        /* ===== LEFT DRAWER ===== */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .drawer-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            max-width: 85vw;
+            z-index: 201;
+            background: var(--drawer-bg);
+            border-right: 1px solid var(--border);
+            transform: translateX(-100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .drawer-panel.open { transform: translateX(0); }
+
+        html.light .drawer-panel {
+            box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        }
+
+        .drawer-close-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .drawer-close-btn:hover { background: rgba(255,255,255,0.08); color: #f8fafc; }
+        html.light .drawer-close-btn { color: #64748b; }
+        html.light .drawer-close-btn:hover { background: rgba(0,0,0,0.06); color: #0f172a; }
+
+        .drawer-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        button.drawer-nav-link {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .drawer-nav-link:hover {
+            background: rgba(34,211,238,0.08);
+            color: #22d3ee;
+        }
+
+        html.light .drawer-nav-link { color: #475569; }
+        html.light .drawer-nav-link:hover { background: rgba(8,145,178,0.08); color: #0891b2; }
+
+        .drawer-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0;
+        }
+
+        /* ===== TRUSTED PARTNERS MARQUEE ===== */
+        .marquee-track {
+            display: flex;
+            gap: 12px;
+            animation: marqueeScroll 35s linear infinite;
+        }
+
+        .marquee-track:hover { animation-play-state: paused; }
+
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-wrapper {
+            overflow: hidden;
+            mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+            -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+        }
+
+        .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 100px;
+            border: 1px solid var(--marquee-item-border);
+            background: var(--marquee-item-bg);
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 600;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        html.light .marquee-item { color: #64748b; }
+        html.light .marquee-item {
+            color: #334155;
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(15, 23, 42, 0.16);
+        }
+
+        /* ===== INFOGRAPHIC SECTION ===== */
+        .infographic-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .infographic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+        }
+
+        html.light .infographic-card:hover {
+            box-shadow: 0 24px 48px rgba(0,0,0,0.12);
+        }
+
+        .infographic-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .infographic-card:hover img { transform: scale(1.02); }
+
+        .infographic-card-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 24px;
+            background: linear-gradient(to top, rgba(2,6,23,0.95) 0%, rgba(2,6,23,0.6) 60%, transparent 100%);
+        }
+
+        html.light .infographic-card-overlay {
+            background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.5) 60%, transparent 100%);
+        }
+
+        /* Lightbox */
+        .lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: rgba(0,0,0,0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .lightbox-img {
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 16px;
+            object-fit: contain;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+
+        .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+        /* Request Form Modal */
+        .request-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 320;
+            background: rgba(2, 6, 23, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+        }
+
+        .request-modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .request-modal-card {
+            width: min(760px, 100%);
+            max-height: 92vh;
+            overflow: auto;
+            border-radius: 20px;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.96));
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .request-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .request-modal-body { padding: 20px; }
+
+        .request-close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .request-close-btn:hover { background: rgba(255,255,255,0.1); color: #f8fafc; }
+
+        .request-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .request-grid .full { grid-column: 1 / -1; }
+
+        .request-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .request-input,
+        .request-textarea,
+        .request-select {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(15, 23, 42, 0.75);
+            color: #e2e8f0;
+            padding: 11px 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .request-input:focus,
+        .request-textarea:focus,
+        .request-select:focus {
+            border-color: rgba(34, 211, 238, 0.65);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.16);
+        }
+
+        .request-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .request-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .request-status {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .request-status.success { color: #34d399; }
+        .request-status.error { color: #fda4af; }
+        .request-followup {
+            margin-top: 10px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #94a3b8;
+        }
+        .request-followup a {
+            color: #67e8f9;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .request-followup a:hover { color: #a5f3fc; }
+
+        .request-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            background: rgba(34, 211, 238, 0.14);
+            color: #a5f3fc;
+            padding: 10px 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .request-submit:hover { background: rgba(34, 211, 238, 0.22); }
+        .request-submit:disabled { opacity: 0.65; cursor: wait; }
+
+        html.light .request-modal-overlay { background: rgba(15, 23, 42, 0.35); }
+        html.light .request-modal-card {
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.98));
+            border-color: rgba(8, 145, 178, 0.22);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+        }
+        html.light .request-modal-header { border-bottom-color: rgba(15, 23, 42, 0.1); }
+        html.light .request-close-btn {
+            background: rgba(2, 6, 23, 0.04);
+            border-color: rgba(15, 23, 42, 0.2);
+            color: #334155;
+        }
+        html.light .request-close-btn:hover { background: rgba(2, 6, 23, 0.08); color: #0f172a; }
+        html.light .request-label { color: #475569; }
+        html.light .request-input,
+        html.light .request-textarea,
+        html.light .request-select {
+            background: #ffffff;
+            border-color: rgba(15, 23, 42, 0.18);
+            color: #0f172a;
+        }
+        html.light .request-status { color: #475569; }
+        html.light .request-followup { color: #475569; }
+        html.light .request-followup a { color: #0e7490; }
+        html.light .request-followup a:hover { color: #155e75; }
+
+        @media (max-width: 640px) {
+            .request-grid { grid-template-columns: 1fr; }
+            .request-modal-header { padding: 14px 14px; }
+            .request-modal-body { padding: 14px; }
+            .request-actions { flex-direction: column; align-items: stretch; }
+            .request-submit { justify-content: center; width: 100%; }
+        }
+
+        /* ===== FOOTER LIGHT MODE ===== */
+        html.light footer { background: #e2e8f0 !important; border-top-color: rgba(0,0,0,0.08) !important; }
+        html.light footer p, html.light footer a, html.light footer span { color: #475569 !important; }
+        html.light footer a:hover { color: #0891b2 !important; }
+
+        /* ===== SECTIONS LIGHT MODE ===== */
+        html.light #data {
+            background-color: rgba(241,245,249,0.5) !important;
+            border-top-color: rgba(0,0,0,0.06) !important;
+            border-bottom-color: rgba(0,0,0,0.06) !important;
+        }
+
+        html.light .rounded-3xl.border { background: rgba(255,255,255,0.8) !important; }
+        html.light .rounded-\[2rem\].border { background: rgba(255,255,255,0.7) !important; }
+        html.light .rounded-\[2\.5rem\].border { background: rgba(255,255,255,0.8) !important; }
+        html.light .rounded-2xl.border { background: rgba(255,255,255,0.7) !important; }
+
+        /* Nav link in header light mode */
+        html.light nav a.hover\:text-cyan-400 { color: #475569; }
+        html.light nav a.hover\:text-cyan-400:hover { color: #0891b2; }
+
+        /* ===== SCROLL REVEAL UTILITY ===== */
+        @media (prefers-reduced-motion: no-preference) {
+            [data-reveal-on-scroll] {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: opacity 0.6s ease, transform 0.6s ease;
+            }
+            [data-reveal-on-scroll].revealed {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== COMPREHENSIVE MOBILE OPTIMIZATIONS ===== */
+
+        /* Left side decorative SVG: hide on mobile, dim in light mode */
+        @media (max-width: 1280px) { .fixed.left-0.top-24 { display: none !important; } }
+        html.light .fixed.left-0.top-24 { opacity: 0.15 !important; }
+
+        /* --- Cover showcase mobile --- */
+        @media (max-width: 640px) {
+            /* Taller image so content fits without cramping */
+            .cover-img-wrap { height: 360px; }
+
+            .cover-content { padding: 14px 16px; }
+
+            /* Badge: compact, no-wrap */
+            .cover-badge {
+                font-size: 9px;
+                letter-spacing: 0.08em;
+                padding: 5px 10px;
+                white-space: nowrap;
+            }
+            .cover-badge-dot { width: 6px; height: 6px; }
+
+            /* Expand button: compact */
+            .cover-expand-btn { font-size: 10px; padding: 5px 10px; }
+
+            /* Title: smaller but still bold */
+            .cover-title { font-size: 15px; }
+
+            /* Hide subtitle — saves space */
+            .cover-subtitle { display: none; }
+
+            /* Chips: hide secondary, show mobile-more */
+            .cover-chip-secondary { display: none; }
+            .cover-chip-sm { display: inline-flex; }
+            .cover-chip-desktop-more { display: none; }
+            .cover-chip-mobile-more { display: inline-flex !important; }
+            .cover-chip { font-size: 10px; padding: 4px 10px; }
+
+            /* Stats: hide on very small screens */
+            .cover-stats-row { display: none; }
+
+            /* Chips row: tighter gap */
+            .cover-chips-row { gap: 5px; margin-top: 6px; }
+        }
+
+        /* Between 641–768px show most chips but still compact */
+        @media (min-width: 641px) and (max-width: 768px) {
+            .cover-chip-secondary { display: inline-flex; }
+            .cover-chip-mobile-more { display: none !important; }
+            .cover-stats-row { display: flex; flex-wrap: wrap; gap: 6px; }
+            .cover-stat { font-size: 10px; padding: 5px 11px; }
+            .cover-stat strong { font-size: 12px; }
+        }
+
+        /* --- Header mobile --- */
+        @media (max-width: 480px) {
+            .glass-header-inner { padding-left: 14px; padding-right: 14px; }
+            .header-company-logo {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        /* --- Hero section mobile: tighter top padding --- */
+        @media (max-width: 640px) {
+            /* Reduce hero vertical padding on mobile */
+            .hero-pt { padding-top: 3rem !important; }
+        }
+
+        /* --- Dashboard card mobile --- */
+        @media (max-width: 480px) {
+            .dashboard-card { min-height: 400px; border-radius: 18px; }
+        }
+
+        /* --- Infographic cards mobile --- */
+        @media (max-width: 640px) {
+            .infographic-card-overlay {
+                padding: 14px 16px;
+            }
+            .infographic-card-overlay h3 { font-size: 13px; }
+            .infographic-card-overlay p { font-size: 10px; }
+            .infographic-card-overlay .text-\[10px\] { font-size: 9px; }
+        }
+
+        /* --- Section headings mobile --- */
+        @media (max-width: 640px) {
+            /* Tighter section padding */
+            section.max-w-7xl { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+        }
+
+        /* --- Marquee mobile --- */
+        @media (max-width: 480px) {
+            .marquee-item { font-size: 11px; padding: 8px 14px; }
+            .marquee-track { animation-duration: 18s; }
+        }
+
+        /* --- Why MicroVIN grid mobile --- */
+        @media (max-width: 480px) {
+            .rounded-\[2\.5rem\] { border-radius: 1.5rem !important; }
+            .rounded-\[2rem\] { border-radius: 1.25rem !important; }
+        }
+
+        /* --- Cover top/bottom line on mobile --- */
+        @media (max-width: 640px) {
+            .cover-top-line { height: 1.5px; }
+        }
+
+        /* --- Stats section cards mobile --- */
+        @media (max-width: 480px) {
+            .rounded-3xl.p-8 { padding: 1.25rem !important; }
+            .text-4xl.font-black { font-size: 1.75rem !important; }
+        }
+
+        /* --- Industries grid mobile: ensure readable --- */
+        @media (max-width: 480px) {
+            /* Industry cards */
+            .rounded-3xl.p-7 { padding: 1.125rem !important; }
+        }
+
+        /* ===== MANUFACTURER COVER SHOWCASE ===== */
+        .cover-showcase {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .cover-img-wrap {
+            position: relative;
+            width: 100%;
+            height: 460px;
+            background: #060c1b; /* matches the image's dark background — no visible letterbox */
+            overflow: hidden;
+        }
+
+        @media (max-width: 1024px) { .cover-img-wrap { height: 380px; } }
+        @media (max-width: 768px)  { .cover-img-wrap { height: 300px; } }
+        @media (max-width: 480px)  { .cover-img-wrap { height: 240px; } }
+
+        .cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;   /* shows full image, no crop, no stretch */
+            object-position: center;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+
+        .cover-showcase:hover .cover-img { transform: scale(1.015); }
+
+        /* Multi-layer gradient: dark top/bottom for text readability */
+        .cover-gradient {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(to bottom,
+                    rgba(6,12,27,0.80) 0%,
+                    rgba(6,12,27,0.05) 25%,
+                    rgba(6,12,27,0.05) 65%,
+                    rgba(6,12,27,0.92) 100%
+                );
+            pointer-events: none;
+        }
+
+        html.light .cover-gradient {
+            background:
+                linear-gradient(to bottom,
+                    rgba(6,12,27,0.75) 0%,
+                    rgba(6,12,27,0.02) 25%,
+                    rgba(6,12,27,0.02) 65%,
+                    rgba(6,12,27,0.90) 100%
+                );
+        }
+
+        /* Scan-line top accent */
+        .cover-top-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(34,211,238,0.7) 40%, rgba(45,212,191,0.7) 60%, transparent);
+        }
+
+        /* Glowing bottom line */
+        .cover-bottom-line {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(34,211,238,0.5) 30%, rgba(45,212,191,0.5) 70%, transparent);
+        }
+
+        .cover-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 28px;
+        }
+
+        @media (min-width: 640px) {
+            .cover-content { padding: 24px 40px; }
+        }
+
+        /* Top row */
+        .cover-top-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .cover-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 16px;
+            border-radius: 100px;
+            background: rgba(34,211,238,0.14);
+            border: 1px solid rgba(34,211,238,0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #67e8f9;
+        }
+
+        .cover-badge-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #22d3ee;
+            box-shadow: 0 0 8px #22d3ee;
+            animation: coverPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes coverPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .cover-expand-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 13px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .cover-expand-btn:hover {
+            background: rgba(34,211,238,0.2);
+            border-color: rgba(34,211,238,0.4);
+            color: #fff;
+        }
+
+        /* Bottom row */
+        .cover-bottom-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cover-title {
+            font-size: clamp(15px, 2.5vw, 22px);
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+        }
+
+        .cover-subtitle {
+            font-size: 12px;
+            color: rgba(148,163,184,0.9);
+            font-weight: 500;
+        }
+
+        .cover-chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 2px;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .cover-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 100px;
+            background: rgba(2, 6, 23, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.58);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            font-size: 11px;
+            font-weight: 700;
+            color: #f8fafc;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        .cover-chip.highlight {
+            background: rgba(8, 145, 178, 0.62);
+            border-color: rgba(34, 211, 238, 0.82);
+            color: #ecfeff;
+        }
+        html.light .cover-chip {
+            background: rgba(2, 6, 23, 0.88);
+            border-color: rgba(148, 163, 184, 0.58);
+            color: #f8fafc;
+        }
+        html.light .cover-chip.highlight {
+            background: rgba(8, 145, 178, 0.62);
+            border-color: rgba(34, 211, 238, 0.82);
+            color: #ecfeff;
+        }
+        html.light .cover-expand-btn {
+            background: rgba(255, 255, 255, 0.92);
+            border-color: rgba(15, 23, 42, 0.18);
+            color: #0f172a;
+        }
+
+        .cover-stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .cover-stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 14px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            font-size: 11px;
+            color: rgba(255,255,255,0.75);
+            font-weight: 500;
+        }
+
+        .cover-stat strong {
+            font-size: 13px;
+            font-weight: 800;
+            color: #22d3ee;
+        }
+
+        /* Mobile: keep image clear, move badges to animated strip at image bottom */
+        .cover-mobile-strip { display: none; }
+
+        @media (max-width: 640px) {
+            .cover-img-wrap { height: 300px !important; }
+            .cover-img { object-position: center top; }
+            .cover-content {
+                padding: 10px 12px !important;
+                justify-content: flex-start;
+            }
+            .cover-top-row { justify-content: flex-end; }
+            .cover-badge,
+            .cover-bottom-row {
+                display: none !important;
+            }
+            .cover-expand-btn {
+                font-size: 10px;
+                padding: 6px 10px;
+                background: rgba(6, 12, 27, 0.72);
+            }
+            .cover-gradient {
+                background: linear-gradient(
+                    to bottom,
+                    rgba(6, 12, 27, 0.45) 0%,
+                    rgba(6, 12, 27, 0.15) 35%,
+                    rgba(6, 12, 27, 0.35) 100%
+                );
+            }
+
+            .cover-mobile-strip {
+                display: block;
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 12;
+                padding: 8px 0 10px;
+                background: linear-gradient(to top, rgba(6, 12, 27, 0.92), rgba(6, 12, 27, 0.78));
+                border-top: 1px solid rgba(34, 211, 238, 0.22);
+            }
+            .cover-mobile-badge {
+                width: fit-content;
+                margin: 0 auto 8px;
+                padding: 5px 12px;
+                border-radius: 999px;
+                border: 1px solid rgba(34, 211, 238, 0.65);
+                background: rgba(8, 145, 178, 0.36);
+                color: #cffafe;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .cover-mobile-badge-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #22d3ee;
+                box-shadow: 0 0 6px #22d3ee;
+            }
+            .cover-mobile-marquee {
+                overflow: hidden;
+                mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+                -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+            }
+            .cover-mobile-marquee-track {
+                display: flex;
+                gap: 7px;
+                width: max-content;
+                animation: marqueeScroll 24s linear infinite;
+            }
+            .cover-mobile-marquee-track .cover-chip {
+                font-size: 10px;
+                padding: 5px 11px;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-weight: 800;
+                border-radius: 999px;
+            }
+            .cover-mobile-marquee-track .cover-chip,
+            .cover-mobile-marquee-track .cover-chip.highlight {
+                color: #f8fafc !important;
+                background: rgba(30, 41, 59, 0.98) !important;
+                border-color: rgba(125, 211, 252, 0.7) !important;
+                box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.22), 0 0 10px rgba(15, 23, 42, 0.35);
+            }
+            .cover-mobile-marquee-track .cover-chip.highlight {
+                color: #ecfeff;
+                background: rgba(8, 145, 178, 0.56);
+                border-color: rgba(34, 211, 238, 0.8);
+            }
+            .cover-mobile-marquee-track .cover-chip::before {
+                content: "";
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: rgba(191, 219, 254, 0.95);
+                box-shadow: 0 0 6px rgba(125, 211, 252, 0.65);
+                flex-shrink: 0;
+            }
+            .cover-mobile-marquee-track .cover-chip.highlight::before {
+                background: #22d3ee;
+                box-shadow: 0 0 6px rgba(34, 211, 238, 0.75);
+            }
+        }
     </style>
 </head>
 
 <body class="page-bg relative">
+
+<!-- ===== LEFT NAVIGATION DRAWER ===== -->
+<div class="drawer-overlay" id="drawerOverlay" aria-hidden="true"></div>
+<nav class="drawer-panel" id="drawerPanel" aria-label="Site navigation">
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between p-5 border-b" style="border-color: var(--border);">
+        <div class="flex items-center gap-3">
+            <svg viewBox="0 0 48 48" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="8" width="32" height="32" rx="8" fill="#020617" stroke="#22D3EE" stroke-width="2"/>
+                <rect x="14" y="14" width="20" height="20" rx="4" fill="#0F172A" stroke="#2DD4BF" stroke-width="1.5"/>
+                <text x="24" y="27" text-anchor="middle" font-size="9" font-family="ui-monospace,monospace" font-weight="800" fill="#CFFAFE" letter-spacing="1">VIN</text>
+            </svg>
+            <div>
+                <div class="font-black text-base leading-tight" style="color: var(--white);">MicroVIN</div>
+                <div class="text-[10px] uppercase tracking-widest" style="color: var(--cyan);">Analytics</div>
+            </div>
+        </div>
+        <button class="drawer-close-btn" id="drawerClose" aria-label="Close menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="flex-1 p-4">
+        <div class="text-[10px] uppercase tracking-widest font-bold mb-3 px-3" style="color: var(--text-muted);">Navigation</div>
+        <a href="#solutions" class="drawer-nav-link" onclick="closeDrawer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Solutions
+        </a>
+        <a href="#data" class="drawer-nav-link" onclick="closeDrawer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            Data Integrity
+        </a>
+        <a href="#industries" class="drawer-nav-link" onclick="closeDrawer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Industries
+        </a>
+        <a href="#about" class="drawer-nav-link" onclick="closeDrawer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Infrastructure
+        </a>
+
+        <div class="drawer-divider"></div>
+
+        <div class="text-[10px] uppercase tracking-widest font-bold mb-3 px-3" style="color: var(--text-muted);">Contact Us</div>
+
+        <button type="button" class="drawer-nav-link w-full text-left" data-open-request-form onclick="closeDrawer()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Request Data Access
+        </button>
+
+        <div class="drawer-divider"></div>
+
+        <div class="text-[10px] uppercase tracking-widest font-bold mb-3 px-3" style="color: var(--text-muted);">Connect</div>
+
+        <a href="mailto:contact@microvinanalytics.com?subject=Corporate%20Asset%20Data%20Sample%20Request&body=Hello%20MicroVIN%20Team%2C%0A%0AI%20am%20reaching%20out%20to%20request%20access%20to%20a%20corporate%20data%20sample.%0A%0AThank%20you." class="drawer-nav-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            contact@microvinanalytics.com
+        </a>
+
+        <a href="https://www.linkedin.com/in/saif-anwar-478304427/" target="_blank" rel="noopener noreferrer" class="drawer-nav-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            LinkedIn — MicroVIN Analytics
+        </a>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-5 border-t" style="border-color: var(--border);">
+        <button type="button" class="flex items-center justify-center gap-2 w-full rounded-full py-3 px-6 text-sm font-bold" style="background: var(--cyan); color: #020617;" data-open-request-form>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Get Data Sample
+        </button>
+        <p class="text-center text-[11px] mt-3" style="color: var(--text-muted);">© 2026 MicroVIN Analytics LLC</p>
+    </div>
+</nav>
+
+<!-- ===== LIGHTBOX ===== -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close image">✕</button>
+    <img src="" alt="" class="lightbox-img" id="lightboxImg" />
+</div>
+
+<!-- ===== REQUEST FORM MODAL ===== -->
+<div class="request-modal-overlay" id="requestModal" aria-hidden="true">
+    <div class="request-modal-card" role="dialog" aria-modal="true" aria-labelledby="requestModalTitle">
+        <div class="request-modal-header">
+            <div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-400">Request Data Access</p>
+                <h3 id="requestModalTitle" class="mt-1 text-xl font-black text-white">Tell us what data you need</h3>
+            </div>
+            <button class="request-close-btn" id="requestModalClose" type="button" aria-label="Close request form">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="request-modal-body">
+            <form id="requestForm" class="request-grid" novalidate method="POST" action="https://formsubmit.co/contact@microvinanalytics.com" target="requestFormTarget">
+                <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="hidden" />
+                <input type="hidden" name="_subject" value="MicroVIN Website — New Data Access Request" />
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
+                <input type="hidden" name="_autoresponse" value="Thanks for contacting MicroVIN Analytics. Our team received your request and will reply shortly." />
+
+                <div>
+                    <label class="request-label" for="reqName">Full Name</label>
+                    <input class="request-input" id="reqName" name="name" required placeholder="Jane Doe" />
+                </div>
+                <div>
+                    <label class="request-label" for="reqEmail">Work Email</label>
+                    <input class="request-input" id="reqEmail" name="email" type="email" required placeholder="jane@company.com" />
+                </div>
+                <div>
+                    <label class="request-label" for="reqCompany">Company</label>
+                    <input class="request-input" id="reqCompany" name="company" required placeholder="Company name" />
+                </div>
+                <div>
+                    <label class="request-label" for="reqRole">Role / Team</label>
+                    <input class="request-input" id="reqRole" name="role" placeholder="Procurement, BI, Engineering..." />
+                </div>
+                <div class="full">
+                    <label class="request-label" for="reqIndustry">Industry Focus</label>
+                    <select class="request-select" id="reqIndustry" name="industry">
+                        <option>OEM Manufacturer</option>
+                        <option>Insurance</option>
+                        <option>Auto Recycler</option>
+                        <option>Parts Network</option>
+                        <option>Fleet / Mobility</option>
+                        <option>AI / ML Company</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="full">
+                    <label class="request-label" for="reqNeeds">What do you need from MicroVIN?</label>
+                    <textarea class="request-textarea" id="reqNeeds" name="message" required placeholder="Tell us the data scope, target use-case, and preferred format (API/CSV/Excel)."></textarea>
+                </div>
+
+                <div class="full request-actions">
+                    <p class="request-status" id="requestStatus">Share your requirements and our team will review and reply.</p>
+                    <button class="request-submit" id="requestSubmitBtn" type="submit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        Send Request
+                    </button>
+                </div>
+                <p class="full request-followup">
+                    If you don’t hear from us shortly, please send us a direct email at
+                    <a href="mailto:contact@microvinanalytics.com">contact@microvinanalytics.com</a>.
+                </p>
+            </form>
+            <iframe name="requestFormTarget" id="requestFormTarget" class="hidden" title="Request form submission target"></iframe>
+        </div>
+    </div>
+</div>
 
 <!-- Custom Left-Side Shape Graphic pinned to the absolute fixed left edge of the screen -->
 <div class="fixed left-0 top-24 bottom-0 w-[250px] pointer-events-none hidden xl:block opacity-30 z-0">
@@ -241,27 +1558,35 @@
 </div>
 
 <!-- Header -->
-<header class="glass-header sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="#" class="flex items-center gap-3">
-            <!-- New Modern VIN Microchip Logo -->
-            <span aria-hidden="true">
-          <svg viewBox="0 0 48 48" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="8" width="32" height="32" rx="8" fill="#020617" stroke="#22D3EE" stroke-width="2"/>
-            <path d="M14 8V4M24 8V4M34 8V4" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
-            <path d="M14 44V40M24 44V40M34 44V40" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
-            <path d="M8 14H4M8 24H4M8 34H4" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
-            <path d="M44 14H40M44 24H40M44 34H40" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
-            <rect x="14" y="14" width="20" height="20" rx="4" fill="#0F172A" stroke="#2DD4BF" stroke-width="1.5"/>
-            <text x="24" y="27" text-anchor="middle" font-size="9" font-family="ui-monospace, Menlo, monospace" font-weight="800" fill="#CFFAFE" letter-spacing="1">VIN</text>
-            <path d="M10 24H38" stroke="#A5F3FC" stroke-width="1" opacity="0.4" stroke-dasharray="2 2"/>
-          </svg>
-        </span>
-            <span class="leading-tight">
-          <span class="block text-white font-black tracking-tight text-lg">MicroVIN</span>
-          <span class="block text-[10px] uppercase tracking-[0.25em] text-cyan-400">Analytics</span>
-        </span>
-        </a>
+<header class="glass-header fixed top-0 left-0 right-0 z-50" id="siteHeader">
+    <div class="glass-header-inner max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+        <!-- Left: Hamburger + Logo -->
+        <div class="flex items-center gap-3">
+            <button class="hamburger-btn" id="drawerOpen" aria-label="Open navigation menu">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+            <a href="#" class="flex items-center gap-3">
+                <!-- New Modern VIN Microchip Logo -->
+                <span aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="38" height="38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="8" width="32" height="32" rx="8" fill="#020617" stroke="#22D3EE" stroke-width="2"/>
+                <path d="M14 8V4M24 8V4M34 8V4" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+                <path d="M14 44V40M24 44V40M34 44V40" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+                <path d="M8 14H4M8 24H4M8 34H4" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+                <path d="M44 14H40M44 24H40M44 34H40" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+                <rect x="14" y="14" width="20" height="20" rx="4" fill="#0F172A" stroke="#2DD4BF" stroke-width="1.5"/>
+                <text x="24" y="27" text-anchor="middle" font-size="9" font-family="ui-monospace, Menlo, monospace" font-weight="800" fill="#CFFAFE" letter-spacing="1">VIN</text>
+                <path d="M10 24H38" stroke="#A5F3FC" stroke-width="1" opacity="0.4" stroke-dasharray="2 2"/>
+              </svg>
+            </span>
+                <span class="leading-tight">
+                <span class="block text-white font-black tracking-tight text-lg">MicroVIN</span>
+                <span class="block text-[10px] uppercase tracking-[0.25em] text-cyan-400">Analytics</span>
+                </span>
+            </a>
+        </div>
 
         <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
             <a href="#solutions" class="hover:text-cyan-400 transition-colors">Solutions</a>
@@ -270,14 +1595,36 @@
             <a href="#about" class="hover:text-cyan-400 transition-colors">Infrastructure</a>
         </nav>
 
-        <!-- UPDATED HEADER EMAIL ACTION BUTTON -->
-        <a href="mailto:contact@microvinanalytics.com?subject=Corporate%20Asset%20Data%20Sample%20Request&body=Hello%20MicroVIN%20Team%2C%0A%0AI%20am%20reaching%20out%20to%20request%20access%20to%20a%20corporate%20data%20sample.%0A%0AThank%20you." class="hidden sm:inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-6 py-2.5 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 transition-colors">
-            Request Data Access
-        </a>
+        <!-- Right: theme toggle + CTA -->
+        <div class="flex items-center gap-3">
+            <!-- Theme Toggle -->
+            <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+                <!-- Moon icon (shown in dark mode) -->
+                <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                <!-- Sun icon (shown in light mode) -->
+                <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+
+            <!-- UPDATED HEADER EMAIL ACTION BUTTON -->
+            <button type="button" data-open-request-form class="hidden sm:inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-6 py-2.5 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 transition-colors">
+                Request Data Access
+            </button>
+            <a href="#" class="header-company-logo" aria-label="MicroVIN Analytics home">
+                <img src="7391ac95-d249-4149-aafd-9d9c71da344d.jpeg" alt="MicroVIN Analytics company logo" loading="eager" />
+            </a>
+        </div>
     </div>
 </header>
 
-<main>
+<main style="padding-top: 72px;">
     <!-- Full-width wrapper -->
     <div class="relative w-full overflow-hidden">
 
@@ -319,9 +1666,9 @@
 
                         <div class="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                             <!-- MAIN HERO EMAIL ACTION BUTTON -->
-                            <a href="mailto:contact@microvinanalytics.com?subject=Corporate%20Asset%20Data%20Sample%20Request&body=Hello%20MicroVIN%20Team%2C%0A%0AI%20am%20reaching%20out%20to%20request%20access%20to%20a%20corporate%20data%20sample.%0A%0AThank%20you." class="primary-light-btn w-full sm:w-auto rounded-full px-8 py-4 text-sm font-bold">
+                            <button type="button" data-open-request-form class="primary-light-btn w-full sm:w-auto rounded-full px-8 py-4 text-sm font-bold">
                                 Get Data Sample
-                            </a>
+                            </button>
                             <a href="#solutions" class="secondary-light-btn w-full sm:w-auto rounded-full px-8 py-4 text-sm font-bold">
                                 Explore Solutions
                             </a>
@@ -461,7 +1808,7 @@
                                     </div>
 
                                     <div class="json-window mt-5">
-                                        <div class="flex items-center justify-between bg-[#161b22] px-4 py-2 border-b border-white/5">
+                                        <div class="json-window-topbar">
                                             <div class="flex gap-1.5">
                                                 <div class="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
                                                 <div class="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
@@ -471,7 +1818,7 @@
                                             <div class="w-8"></div>
                                         </div>
 
-                                        <div class="p-4 overflow-x-auto">
+                                        <div class="json-window-body">
                         <pre class="json-code text-xs leading-relaxed"><code><span class="json-comment">// MicroVIN Premium Lifecycle Data Feed</span>
 {
   <span class="json-key">"vin"</span>: <span class="json-string">"1FTFW1EDXNFAXXXXX"</span>,
@@ -505,10 +1852,199 @@
         </section>
     </div>
 
+    <!-- ===== MANUFACTURER COVER SHOWCASE ===== -->
+    <div class="cover-showcase" role="img" aria-label="MicroVIN Analytics Manufacturer Coverage — Stellantis, GM, Ford, Toyota, Honda, BMW, Hyundai and more">
+        <div class="cover-top-line"></div>
+        <div class="cover-img-wrap">
+            <img
+                class="cover-img"
+                src="screenshot-5.png"
+                alt="MicroVIN Analytics covers all major automotive manufacturers including Stellantis, GM, Ford, Toyota, Honda, BMW, Mercedes, VW, Hyundai, Nissan, Kia, Subaru and Mazda"
+                loading="eager"
+            />
+            <div class="cover-gradient"></div>
+
+            <div class="cover-content">
+                <!-- Top row: badge + expand -->
+                <div class="cover-top-row">
+                    <div class="cover-badge">
+                        <span class="cover-badge-dot"></span>
+                        Manufacturer Coverage
+                    </div>
+                    <button
+                        class="cover-expand-btn"
+                        onclick="openLightbox('screenshot-5.png', 'MicroVIN Analytics — Manufacturer Partners & Executive Analytics Dashboard')"
+                        aria-label="View full image"
+                    >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                        View full
+                    </button>
+                </div>
+
+                <!-- Bottom row: title + company chips + stats -->
+                <div class="cover-bottom-row">
+                    <div>
+                        <div class="cover-title">Covering Every Major Automotive Brand</div>
+                        <div class="cover-subtitle">VIN-level intelligence across the full US manufacturer landscape</div>
+                    </div>
+
+                    <!-- Company chips -->
+                    <div class="cover-chips-row">
+                        <span class="cover-chip highlight">Stellantis</span>
+                        <span class="cover-chip highlight">GM</span>
+                        <span class="cover-chip highlight">Ford</span>
+                        <span class="cover-chip highlight">Toyota</span>
+                        <span class="cover-chip cover-chip-sm">Honda</span>
+                        <span class="cover-chip cover-chip-secondary">BMW</span>
+                        <span class="cover-chip cover-chip-secondary">Mercedes</span>
+                        <span class="cover-chip cover-chip-secondary">Volkswagen</span>
+                        <span class="cover-chip cover-chip-secondary">Hyundai</span>
+                        <span class="cover-chip cover-chip-secondary">Nissan</span>
+                        <span class="cover-chip cover-chip-secondary">Kia</span>
+                        <span class="cover-chip cover-chip-secondary">Subaru</span>
+                        <span class="cover-chip cover-chip-secondary">Mazda</span>
+                        <span class="cover-chip cover-chip-desktop-more" style="background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.2); color: #67e8f9;">+ More Brands</span>
+                        <span class="cover-chip cover-chip-mobile-more" style="background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.2); color: #67e8f9; display: none;">+ 9 more brands</span>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="cover-stats-row">
+                        <div class="cover-stat"><strong>4.4M+</strong> VIN Profiles</div>
+                        <div class="cover-stat"><strong>12,000+</strong> Instant Recall Closures</div>
+                        <div class="cover-stat"><strong>$12.5M+</strong> in Saved Research Costs</div>
+                        <div class="cover-stat"><strong>97.8%</strong> Data Confidence</div>
+                    </div>
+                </div>
+
+                <!-- Mobile-only: moving brand badges inside image bottom -->
+                <div class="cover-mobile-strip">
+                    <div class="cover-mobile-badge">
+                        <span class="cover-mobile-badge-dot"></span>
+                        Manufacturer Coverage
+                    </div>
+                    <div class="cover-mobile-marquee">
+                        <div class="cover-mobile-marquee-track">
+                            <span class="cover-chip highlight">Stellantis</span>
+                            <span class="cover-chip highlight">GM</span>
+                            <span class="cover-chip highlight">Ford</span>
+                            <span class="cover-chip highlight">Toyota</span>
+                            <span class="cover-chip">Honda</span>
+                            <span class="cover-chip">BMW</span>
+                            <span class="cover-chip">Mercedes</span>
+                            <span class="cover-chip">Volkswagen</span>
+                            <span class="cover-chip">Hyundai</span>
+                            <span class="cover-chip">Nissan</span>
+                            <span class="cover-chip">Kia</span>
+                            <span class="cover-chip">Subaru</span>
+                            <span class="cover-chip">Mazda</span>
+                            <span class="cover-chip" style="background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.2); color: #67e8f9;">+ More Brands</span>
+
+                            <span class="cover-chip highlight">Stellantis</span>
+                            <span class="cover-chip highlight">GM</span>
+                            <span class="cover-chip highlight">Ford</span>
+                            <span class="cover-chip highlight">Toyota</span>
+                            <span class="cover-chip">Honda</span>
+                            <span class="cover-chip">BMW</span>
+                            <span class="cover-chip">Mercedes</span>
+                            <span class="cover-chip">Volkswagen</span>
+                            <span class="cover-chip">Hyundai</span>
+                            <span class="cover-chip">Nissan</span>
+                            <span class="cover-chip">Kia</span>
+                            <span class="cover-chip">Subaru</span>
+                            <span class="cover-chip">Mazda</span>
+                            <span class="cover-chip" style="background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.2); color: #67e8f9;">+ More Brands</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="cover-bottom-line"></div>
+    </div>
+
+    <!-- ===== TRUSTED BY MARQUEE ===== -->
+    <section class="relative w-full py-10 border-y" style="border-color: var(--border); background: var(--section-alt-bg);">
+        <p class="text-center font-mono text-xs uppercase tracking-wider mb-6" style="color: var(--text-muted);">
+            Built for enterprise automotive organizations
+        </p>
+        <div class="marquee-wrapper">
+            <div class="marquee-track">
+                <!-- Set 1 -->
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    OEM Manufacturers
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Insurance Companies
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    Auto Recyclers
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    Parts Networks
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Fleet Analytics
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    BI &amp; Data Teams
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    AI/ML Companies
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                    Government Regulators
+                </div>
+                <!-- Set 2 (duplicate for seamless loop) -->
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    OEM Manufacturers
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Insurance Companies
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    Auto Recyclers
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    Parts Networks
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Fleet Analytics
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    BI &amp; Data Teams
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    AI/ML Companies
+                </div>
+                <div class="marquee-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                    Government Regulators
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Solutions -->
     <section id="solutions" class="max-w-7xl mx-auto px-6 py-20">
         <div class="text-center max-w-3xl mx-auto">
-            <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Enterprise Recovery Intelligence</div>
+            <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18"/><path d="M12 3v18"/><circle cx="12" cy="12" r="9"/></svg>
+                Enterprise Recovery Intelligence
+            </div>
             <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white">
                 Engineered for Enterprise Automotive Intelligence
             </h2>
@@ -556,13 +2092,51 @@
         </div>
     </section>
 
+    <!-- ===== VISUAL INTELLIGENCE INFOGRAPHICS (Screenshots 1 & 2) ===== -->
+    <section id="visual-intelligence" class="max-w-7xl mx-auto px-6 py-20" data-reveal-on-scroll>
+        <div class="text-center max-w-3xl mx-auto mb-14">
+            <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="m8 13 3 3 5-6"/></svg>
+                Visual Intelligence Platform
+            </div>
+            <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white">
+                How MicroVIN Transforms Raw Data Into Enterprise Intelligence
+            </h2>
+            <p class="mt-5 text-slate-400 leading-relaxed">
+                Our 24/7 pipeline ingests, validates, and structures millions of vehicle images and records
+                — delivering production-ready data across every integration point.
+            </p>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-6">
+            <div class="infographic-card" onclick="openLightbox('screenshot-1.png', 'From Junked Cars to AI Gold: The MicroVIN Visual Intelligence Dataset')">
+                <img src="screenshot-1.png" alt="From Junked Cars to AI Gold: The MicroVIN Visual Intelligence Dataset" loading="lazy" />
+                <div class="infographic-card-overlay">
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-cyan-300 mb-1">Visual Supply Chain</div>
+                    <h3 class="text-white font-bold text-base leading-tight">From Junked Cars to AI Gold</h3>
+                    <p class="text-slate-300 text-xs mt-1">500K+ vehicle images · Multi-million image library · AI/ML training datasets</p>
+                </div>
+            </div>
+            <div class="infographic-card" onclick="openLightbox('screenshot-2.png', 'Enterprise-Scale Automotive Data Logistics')">
+                <img src="screenshot-2.png" alt="Enterprise-Scale Automotive Data Logistics: From Fragmented Signals to Integrated Intelligence" loading="lazy" />
+                <div class="infographic-card-overlay">
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-teal-300 mb-1">Data Logistics</div>
+                    <h3 class="text-white font-bold text-base leading-tight">Enterprise-Scale Data Logistics</h3>
+                    <p class="text-slate-300 text-xs mt-1">97.8% data confidence · REST API · CSV/Excel · Secure Portal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Data Analytics Stats -->
     <section id="data" class="border-y border-white/5 bg-slate-900/20 py-24 relative overflow-hidden">
         <div class="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500/5 blur-[100px] rounded-full pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center relative z-10">
             <div class="lg:col-span-6">
-                <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">High-Fidelity Data Logistics</div>
+                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/><path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>
+                    High-Fidelity Data Logistics
+                </div>
                 <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white">
                     Continuously Updated Market Intelligence
                 </h2>
@@ -601,7 +2175,10 @@
     <section id="industries" class="max-w-7xl mx-auto px-6 py-24">
         <div class="grid lg:grid-cols-3 gap-12 items-center">
             <div class="lg:col-span-1">
-                <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Industries</div>
+                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/><path d="M9 21v-6h6v6"/></svg>
+                    Industries
+                </div>
                 <h2 class="mt-4 text-3xl font-black tracking-tight text-white leading-tight">
                     Built for Enterprise Automotive Operations
                 </h2>
@@ -609,32 +2186,112 @@
 
             <div class="lg:col-span-2 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">OEM Manufacturers</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V8l7-4 7 4v13"/></svg>
+                        OEM Manufacturers
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Support lifecycle intelligence initiatives with standardized VIN-level datasets.</p>
                 </div>
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">Insurance Companies</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        Insurance Companies
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Improve recovery visibility and claims workflows using structured vehicle intelligence.</p>
                 </div>
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">Auto Recyclers</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h18M7 3v4m10-4v4M6 11h12l-1 9H7z"/></svg>
+                        Auto Recyclers
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Prioritize high-value inventory decisions with reliable recovery and component context.</p>
                 </div>
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">Parts Networks</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18"/><path d="M12 3v18"/><circle cx="12" cy="12" r="9"/></svg>
+                        Parts Networks
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Align regional sourcing strategies with current market and inventory signals.</p>
                 </div>
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">Fleet Analytics</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        Fleet Analytics
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Incorporate structured recovery intelligence into fleet lifecycle analytics models.</p>
                 </div>
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">Automotive Market Intelligence</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>
+                        Automotive Market Intelligence
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Track macro-level vehicle recovery and component patterns across US markets.</p>
                 </div>
                 <div class="rounded-3xl border border-white/5 bg-slate-900/40 p-7">
-                    <h3 class="font-bold text-white text-lg">Data &amp; BI Teams</h3>
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5"/></svg>
+                        Data &amp; BI Teams
+                    </h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-400">Integrate normalized JSON, CSV, Excel, and API feeds into enterprise reporting stacks.</p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-10 rounded-3xl border border-cyan-500/20 bg-slate-900/50 p-8">
+            <div class="flex items-start gap-4">
+                <div class="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-500/15 text-cyan-300">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.9 4.9l2.8 2.8"/><path d="M16.3 16.3l2.8 2.8"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.9 19.1l2.8-2.8"/><path d="M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="4"/></svg>
+                </div>
+                <div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="m8 13 3 3 5-6"/></svg>
+                        AI / ML Enablement
+                    </div>
+                    <h3 class="mt-3 text-2xl font-black tracking-tight text-white">Also built for AI/ML training and model operations</h3>
+                    <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">
+                        MicroVIN datasets are structured for machine learning workflows: clean labels, VIN-linked metadata, component intelligence, and image references where available.
+                        This supports training, validation, and deployment of automotive computer vision, valuation, anomaly detection, and demand forecasting models.
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">Model training datasets</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">Feature engineering ready</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">Computer vision support</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">MLOps ingestion friendly</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== RECALL INTELLIGENCE INFOGRAPHICS (Screenshots 3 & 4) ===== -->
+    <section class="max-w-7xl mx-auto px-6 py-20" data-reveal-on-scroll>
+        <div class="text-center max-w-3xl mx-auto mb-14">
+        <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 8v4l3 2"/></svg>
+            Recall & Investigation Intelligence
+        </div>
+            <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white">
+                Closing Thousands of Stale Investigations — Automatically
+            </h2>
+            <p class="mt-5 text-slate-400 leading-relaxed">
+                MicroVIN's 24/7 analytical engine transforms open recall investigations into closed cases,
+                saving organizations millions in annual operational costs.
+            </p>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-6">
+            <div class="infographic-card" onclick="openLightbox('screenshot-3.png', 'Automated Investigation Completion Flow: Delivering Recall-Critical Intelligence')">
+                <img src="screenshot-3.png" alt="Automated Investigation Completion Flow: Delivering Recall-Critical Intelligence" loading="lazy" />
+                <div class="infographic-card-overlay">
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-cyan-300 mb-1">Recall Management</div>
+                    <h3 class="text-white font-bold text-base leading-tight">Automated Investigation Completion</h3>
+                    <p class="text-slate-300 text-xs mt-1">VIN-centric indexing · Component intelligence · Immediate closure workflows</p>
+                </div>
+            </div>
+            <div class="infographic-card" onclick="openLightbox('screenshot-4.png', 'From Endless Recalls to Millions in Savings: The MicroVIN Recovery Intelligence Advantage')">
+                <img src="screenshot-4.png" alt="From Endless Recalls to Millions in Savings: The MicroVIN Recovery Intelligence Advantage" loading="lazy" />
+                <div class="infographic-card-overlay">
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-teal-300 mb-1">Business Impact</div>
+                    <h3 class="text-white font-bold text-base leading-tight">Millions in Annual Operational Savings</h3>
+                    <p class="text-slate-300 text-xs mt-1">Close stale recalls · Minimize legal escalations · Automate compliance workflows</p>
                 </div>
             </div>
         </div>
@@ -645,20 +2302,23 @@
         <div class="relative overflow-hidden rounded-[2.5rem] border border-cyan-500/20 bg-slate-900/50 p-10 sm:p-14">
             <div class="absolute -top-32 right-1/3 h-80 w-80 rounded-full bg-cyan-500/10 blur-[100px] pointer-events-none"></div>
             <div class="relative z-10">
-                <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Why MicroVIN Analytics</div>
+                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    Why MicroVIN Analytics
+                </div>
                 <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white">
                     Enterprise Automotive Intelligence, Delivered for Integration
                 </h2>
                 <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">VIN-centric structured data architecture</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Enterprise-ready JSON, CSV, Excel, and API delivery</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Multi-million vehicle coverage</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Continuous data enrichment</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Supporting image intelligence where available</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Designed for enterprise integration workflows</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Standardized and normalized datasets</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">High-quality structured records</div>
-                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300">Reliable enterprise data delivery</div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h10M12 7v10"/></svg><span>VIN-centric structured data architecture</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h6"/></svg><span>Enterprise-ready JSON, CSV, Excel, and API delivery</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M2 12h20"/></svg><span>Multi-million vehicle coverage</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg><span>Continuous data enrichment</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 15-4-4-5 5"/></svg><span>Supporting image intelligence where available</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 12h18"/><path d="M12 3v18"/><circle cx="12" cy="12" r="9"/></svg><span>Designed for enterprise integration workflows</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h8"/></svg><span>Standardized and normalized datasets</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="m20 6-11 11-5-5"/></svg><span>High-quality structured records</span></div>
+                    <div class="rounded-2xl border border-white/5 bg-slate-900/60 p-4 text-sm text-slate-300 flex items-start gap-2"><svg class="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Reliable enterprise data delivery</span></div>
                 </div>
             </div>
         </div>
@@ -668,7 +2328,10 @@
     <section id="coverage" class="max-w-7xl mx-auto px-6 py-12">
         <div class="grid lg:grid-cols-12 gap-8 items-start">
             <div class="lg:col-span-5">
-                <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Data Coverage</div>
+                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+                    Data Coverage
+                </div>
                 <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
                     Structured Fields for Enterprise Automotive Workflows
                 </h2>
@@ -680,15 +2343,15 @@
             </div>
 
             <div class="lg:col-span-7 grid sm:grid-cols-2 gap-4">
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">VIN</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Vehicle Specifications</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Recovery Status</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Mileage (where available)</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Supporting Images (where available)</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Component Intelligence</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Source Attribution</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300">Geographic Context</div>
-                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 sm:col-span-2">Structured Metadata</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h10M12 7v10"/></svg>VIN</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h6"/></svg>Vehicle Specifications</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="m8 12 2 2 6-6"/></svg>Recovery Status</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l3 2"/></svg>Mileage (where available)</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 15-4-4-5 5"/></svg>Supporting Images (where available)</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg>Component Intelligence</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Source Attribution</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>Geographic Context</div>
+                <div class="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-sm text-slate-300 sm:col-span-2 flex items-center gap-2"><svg class="h-4 w-4 shrink-0 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h8"/></svg>Structured Metadata</div>
             </div>
         </div>
 
@@ -705,7 +2368,10 @@
         <div class="relative overflow-hidden rounded-[2.5rem] border border-cyan-500/20 bg-slate-900/60 p-10 sm:p-16">
             <div class="absolute -top-40 -right-40 w-96 h-96 bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none"></div>
             <div class="max-w-3xl relative z-10">
-                <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Infrastructure</div>
+                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                    Infrastructure
+                </div>
                 <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
                     Engineered for Automotive Supply Chain Clarity
                 </h2>
@@ -724,7 +2390,10 @@
             <div class="absolute -top-32 left-1/2 w-80 h-80 -translate-x-1/2 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
 
             <div class="relative z-10">
-                <div class="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">Request Access</div>
+                <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg>
+                    Request Access
+                </div>
                 <h2 class="mt-4 text-3xl sm:text-4xl font-black tracking-tight text-white">
                     Request a Corporate Data Sample
                 </h2>
@@ -735,9 +2404,9 @@
 
                 <div class="mt-10">
                     <!-- ENCODED EMAIL ACTION BUTTON -->
-                    <a href="mailto:contact@microvinanalytics.com?subject=Corporate%20Asset%20Data%20Sample%20Request&body=Hello%20MicroVIN%20Team%2C%0A%0AI%20am%20reaching%20out%20to%20request%20access%20to%20a%20corporate%20data%20sample.%0A%0AThank%20you." class="primary-light-btn inline-flex rounded-full px-10 py-4 text-sm font-bold">
+                    <button type="button" data-open-request-form class="primary-light-btn inline-flex rounded-full px-10 py-4 text-sm font-bold">
                         Contact Procurement Feed
-                    </a>
+                    </button>
                 </div>
 
                 <!-- VISIBLE EMAIL TEXT -->
@@ -752,13 +2421,21 @@
 
 <!-- Footer -->
 <footer class="border-t border-white/5 bg-[#01040f] py-10">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500 font-medium">
         <p>&copy; 2026 MicroVIN Analytics LLC. All rights reserved.</p>
 
-        <!-- FOOTER EMAIL AND INFO -->
-        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <a href="mailto:contact@microvinanalytics.com?subject=Corporate%20Asset%20Data%20Sample%20Request&body=Hello%20MicroVIN%20Team%2C%0A%0AI%20am%20reaching%20out%20to%20request%20access%20to%20a%20corporate%20data%20sample.%0A%0AThank%20you." class="hover:text-cyan-400 transition-colors">contact@microvinanalytics.com</a>
-            <p class="hidden sm:block text-white/20">|</p>
+        <!-- FOOTER EMAIL, LINKEDIN AND INFO -->
+        <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+            <a href="mailto:contact@microvinanalytics.com?subject=Corporate%20Asset%20Data%20Sample%20Request&body=Hello%20MicroVIN%20Team%2C%0A%0AI%20am%20reaching%20out%20to%20request%20access%20to%20a%20corporate%20data%20sample.%0A%0AThank%20you." class="hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                contact@microvinanalytics.com
+            </a>
+            <span class="hidden sm:block text-white/20">|</span>
+            <a href="https://www.linkedin.com/in/saif-anwar-478304427/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                LinkedIn
+            </a>
+            <span class="hidden sm:block text-white/20">|</span>
             <p>Managed Automotive Logistics Informatics.</p>
         </div>
     </div>
@@ -766,6 +2443,7 @@
 
 <!-- App Javascript -->
 <script>
+    // ===== FEED PANEL SWITCHER (existing) =====
     const feedPanels = document.querySelectorAll("[data-feed-panel]");
     const feedButtons = document.querySelectorAll("[data-feed-control]");
 
@@ -773,52 +2451,210 @@
     let autoTimer = null;
 
     function setActiveButton(mode) {
-      feedButtons.forEach((button) => {
-        button.classList.toggle("active", button.dataset.feedControl === mode);
-      });
+        feedButtons.forEach((button) => {
+            button.classList.toggle("active", button.dataset.feedControl === mode);
+        });
     }
 
     function showFeedPanel(panelName) {
-      activeFeed = panelName;
-      feedPanels.forEach((panel) => {
-        panel.classList.toggle("active", panel.dataset.feedPanel === panelName);
-      });
+        activeFeed = panelName;
+        feedPanels.forEach((panel) => {
+            panel.classList.toggle("active", panel.dataset.feedPanel === panelName);
+        });
     }
 
     function stopAutoSwitch() {
-      if (autoTimer) {
-        clearInterval(autoTimer);
-        autoTimer = null;
-      }
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
     }
 
     function startAutoSwitch() {
-      stopAutoSwitch();
-      setActiveButton("auto");
-
-      autoTimer = setInterval(() => {
-        const nextPanel = activeFeed === "stats" ? "json" : "stats";
-        showFeedPanel(nextPanel);
-      }, 7000);
+        stopAutoSwitch();
+        setActiveButton("auto");
+        autoTimer = setInterval(() => {
+            showFeedPanel(activeFeed === "stats" ? "json" : "stats");
+        }, 7000);
     }
 
     feedButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const control = button.dataset.feedControl;
-
-        if (control === "auto") {
-          startAutoSwitch();
-          return;
-        }
-
-        stopAutoSwitch();
-        setActiveButton(control);
-        showFeedPanel(control);
-      });
+        button.addEventListener("click", () => {
+            const control = button.dataset.feedControl;
+            if (control === "auto") { startAutoSwitch(); return; }
+            stopAutoSwitch();
+            setActiveButton(control);
+            showFeedPanel(control);
+        });
     });
 
-    // Boot auto-switcher
     startAutoSwitch();
+
+    // ===== THEME TOGGLE =====
+    const html = document.documentElement;
+    const themeBtn = document.getElementById("themeToggle");
+    const iconMoon = document.getElementById("iconMoon");
+    const iconSun = document.getElementById("iconSun");
+
+    function applyTheme(isLight) {
+        html.classList.toggle("light", isLight);
+        if (iconMoon) iconMoon.style.display = isLight ? "none" : "";
+        if (iconSun) iconSun.style.display = isLight ? "" : "none";
+        try { localStorage.setItem("microvin-theme", isLight ? "light" : "dark"); } catch(e) {}
+    }
+
+    // Init icons from current state
+    if (iconMoon && iconSun) {
+        const isCurrentlyLight = html.classList.contains("light");
+        iconMoon.style.display = isCurrentlyLight ? "none" : "";
+        iconSun.style.display = isCurrentlyLight ? "" : "none";
+    }
+
+    themeBtn && themeBtn.addEventListener("click", () => {
+        applyTheme(!html.classList.contains("light"));
+    });
+
+    // ===== FLOATING HEADER ON SCROLL =====
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+        if (!header) return;
+        const scrolled = window.scrollY > 60;
+        header.classList.toggle("is-floating", scrolled);
+    }
+
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    updateHeader();
+
+    // ===== LEFT DRAWER =====
+    const drawerOverlay = document.getElementById("drawerOverlay");
+    const drawerPanel = document.getElementById("drawerPanel");
+    const drawerOpenBtn = document.getElementById("drawerOpen");
+    const drawerCloseBtn = document.getElementById("drawerClose");
+
+    function openDrawer() {
+        drawerOverlay.classList.add("open");
+        drawerPanel.classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeDrawer() {
+        drawerOverlay.classList.remove("open");
+        drawerPanel.classList.remove("open");
+        document.body.style.overflow = "";
+    }
+
+    drawerOpenBtn && drawerOpenBtn.addEventListener("click", openDrawer);
+    drawerCloseBtn && drawerCloseBtn.addEventListener("click", closeDrawer);
+    drawerOverlay && drawerOverlay.addEventListener("click", closeDrawer);
+
+    // ===== REQUEST FORM MODAL =====
+    const requestModal = document.getElementById("requestModal");
+    const requestModalClose = document.getElementById("requestModalClose");
+    const requestForm = document.getElementById("requestForm");
+    const requestStatus = document.getElementById("requestStatus");
+    const requestSubmitBtn = document.getElementById("requestSubmitBtn");
+    const requestFormTarget = document.getElementById("requestFormTarget");
+    const openRequestTriggers = document.querySelectorAll("[data-open-request-form]");
+    let requestPending = false;
+
+    function openRequestModal() {
+        if (!requestModal) return;
+        requestModal.classList.add("open");
+        requestModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeRequestModal() {
+        if (!requestModal) return;
+        requestModal.classList.remove("open");
+        requestModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+    }
+
+    openRequestTriggers.forEach((el) => {
+        el.addEventListener("click", () => {
+            closeDrawer();
+            openRequestModal();
+        });
+    });
+
+    requestModalClose && requestModalClose.addEventListener("click", closeRequestModal);
+    requestModal && requestModal.addEventListener("click", (e) => {
+        if (e.target === requestModal) closeRequestModal();
+    });
+
+    if (requestForm) {
+        requestForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!requestForm.checkValidity()) {
+                requestStatus.textContent = "Please complete the required fields.";
+                requestStatus.className = "request-status error";
+                requestForm.reportValidity();
+                return;
+            }
+
+            requestSubmitBtn.disabled = true;
+            requestStatus.textContent = "Sending request...";
+            requestStatus.className = "request-status";
+            requestPending = true;
+            requestForm.submit();
+        });
+    }
+
+    if (requestFormTarget) {
+        requestFormTarget.addEventListener("load", () => {
+            if (!requestPending) return;
+            requestPending = false;
+            requestStatus.textContent = "Request sent successfully. We'll contact you shortly.";
+            requestStatus.className = "request-status success";
+            requestSubmitBtn.disabled = false;
+            requestForm.reset();
+        });
+    }
+
+    // Close drawer on Escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeDrawer();
+            closeLightbox();
+            closeRequestModal();
+        }
+    });
+
+    // ===== LIGHTBOX =====
+    const lightboxOverlay = document.getElementById("lightboxOverlay");
+    const lightboxImg = document.getElementById("lightboxImg");
+    const lightboxCloseBtn = document.getElementById("lightboxClose");
+
+    function openLightbox(src, alt) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || "";
+        lightboxOverlay.classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+        lightboxOverlay.classList.remove("open");
+        document.body.style.overflow = "";
+        setTimeout(() => { lightboxImg.src = ""; }, 300);
+    }
+
+    lightboxCloseBtn && lightboxCloseBtn.addEventListener("click", closeLightbox);
+    lightboxOverlay && lightboxOverlay.addEventListener("click", (e) => {
+        if (e.target === lightboxOverlay) closeLightbox();
+    });
+
+    // ===== SCROLL REVEAL =====
+    const revealEls = document.querySelectorAll("[data-reveal-on-scroll]");
+    if (revealEls.length && "IntersectionObserver" in window) {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("revealed");
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08 });
+        revealEls.forEach(el => revealObserver.observe(el));
+    }
 </script>
 
 </body>
