@@ -131,26 +131,6 @@
             border-bottom: 1px solid var(--border);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Floating header on scroll */
-        .glass-header.is-floating {
-            top: 10px !important;
-            left: 16px !important;
-            right: 16px !important;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-        }
-
-        html.light .glass-header.is-floating {
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-        }
-
-        .glass-header.is-floating .glass-header-inner {
-            padding-top: 10px;
-            padding-bottom: 10px;
         }
 
         .header-company-logo {
@@ -337,13 +317,8 @@
             color: #0891b2;
         }
 
-        .feed-panel { display: none; animation: simpleFade 0.3s ease-in-out; }
+        .feed-panel { display: none; }
         .feed-panel.active { display: block; }
-
-        @keyframes simpleFade {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
 
         /* ===== JSON WINDOW ===== */
         .json-window {
@@ -880,13 +855,13 @@
         /* ===== SCROLL REVEAL UTILITY ===== */
         @media (prefers-reduced-motion: no-preference) {
             [data-reveal-on-scroll] {
-                opacity: 0;
-                transform: translateY(20px);
-                transition: opacity 0.6s ease, transform 0.6s ease;
+                opacity: 1;
+                transform: none;
+                transition: none;
             }
             [data-reveal-on-scroll].revealed {
                 opacity: 1;
-                transform: translateY(0);
+                transform: none;
             }
         }
 
@@ -1120,12 +1095,6 @@
             border-radius: 50%;
             background: #22d3ee;
             box-shadow: 0 0 8px #22d3ee;
-            animation: coverPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes coverPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
         }
 
         .cover-expand-btn {
@@ -2512,7 +2481,8 @@
         });
     });
 
-    startAutoSwitch();
+    showFeedPanel(activeFeed);
+    setActiveButton(activeFeed);
 
     // ===== THEME TOGGLE =====
     const html = document.documentElement;
@@ -2537,18 +2507,6 @@
     themeBtn && themeBtn.addEventListener("click", () => {
         applyTheme(!html.classList.contains("light"));
     });
-
-    // ===== FLOATING HEADER ON SCROLL =====
-    const header = document.getElementById("siteHeader");
-
-    function updateHeader() {
-        if (!header) return;
-        const scrolled = window.scrollY > 60;
-        header.classList.toggle("is-floating", scrolled);
-    }
-
-    window.addEventListener("scroll", updateHeader, { passive: true });
-    updateHeader();
 
     // ===== LEFT DRAWER =====
     const drawerOverlay = document.getElementById("drawerOverlay");
