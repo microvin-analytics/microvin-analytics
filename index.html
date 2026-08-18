@@ -14,6 +14,19 @@
                 }
             } catch(e) {}
         })();
+        // ===== SCROLL REVEAL =====
+        const revealEls = document.querySelectorAll("[data-reveal-on-scroll]");
+        if (revealEls.length && "IntersectionObserver" in window) {
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("revealed");
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+            revealEls.forEach(el => revealObserver.observe(el));
+        }
     </script>
 
     <link rel="icon" type="image/svg+xml" href="vin-favicon.svg" />
@@ -2637,6 +2650,20 @@
         });
     }
 
+    // ===== SCROLL REVEAL =====
+    const revealEls = document.querySelectorAll("[data-reveal-on-scroll]");
+    if (revealEls.length && "IntersectionObserver" in window) {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("revealed");
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+        revealEls.forEach(el => revealObserver.observe(el));
+    }
+
     // Close drawer on Escape key
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
@@ -2669,19 +2696,6 @@
         if (e.target === lightboxOverlay) closeLightbox();
     });
 
-    // ===== SCROLL REVEAL =====
-    const revealEls = document.querySelectorAll("[data-reveal-on-scroll]");
-    if (revealEls.length && "IntersectionObserver" in window) {
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("revealed");
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.08 });
-        revealEls.forEach(el => revealObserver.observe(el));
-    }
 </script>
 
 </body>
