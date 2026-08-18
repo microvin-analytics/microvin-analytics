@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>MicroVIN Analytics | Automotive Asset Intelligence</title>
-    <!-- No-flash theme: reads localStorage before paint -->
+    <!-- No-flash: apply theme + hide body until Tailwind finishes -->
     <script>
         (function() {
             try {
@@ -13,6 +13,8 @@
                     document.documentElement.classList.add('light');
                 }
             } catch(e) {}
+            // Hide until styled to prevent FOUC on server
+            document.documentElement.style.visibility = 'hidden';
         })();
     </script>
 
@@ -29,6 +31,26 @@
     <meta name="twitter:image" content="7391ac95-d249-4149-aafd-9d9c71da344d.jpeg" />
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script>
+        // Reveal page once Tailwind has processed all classes
+        (function() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() {
+                            document.documentElement.style.visibility = '';
+                        });
+                    });
+                });
+            } else {
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        document.documentElement.style.visibility = '';
+                    });
+                });
+            }
+        })();
+    </script>
 
     <style>
         /* ===== DARK MODE DEFAULTS ===== */
@@ -131,6 +153,26 @@
             border-bottom: 1px solid var(--border);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Floating header on scroll */
+        .glass-header.is-floating {
+            top: 10px !important;
+            left: 16px !important;
+            right: 16px !important;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+
+        html.light .glass-header.is-floating {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .glass-header.is-floating .glass-header-inner {
+            padding-top: 10px;
+            padding-bottom: 10px;
         }
 
         .header-company-logo {
@@ -317,8 +359,13 @@
             color: #0891b2;
         }
 
-        .feed-panel { display: none; }
+        .feed-panel { display: none; animation: simpleFade 0.3s ease-in-out; }
         .feed-panel.active { display: block; }
+
+        @keyframes simpleFade {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
 
         /* ===== JSON WINDOW ===== */
         .json-window {
@@ -855,13 +902,13 @@
         /* ===== SCROLL REVEAL UTILITY ===== */
         @media (prefers-reduced-motion: no-preference) {
             [data-reveal-on-scroll] {
-                opacity: 1;
-                transform: none;
-                transition: none;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: opacity 0.6s ease, transform 0.6s ease;
             }
             [data-reveal-on-scroll].revealed {
                 opacity: 1;
-                transform: none;
+                transform: translateY(0);
             }
         }
 
@@ -1095,6 +1142,12 @@
             border-radius: 50%;
             background: #22d3ee;
             box-shadow: 0 0 8px #22d3ee;
+            animation: coverPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes coverPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
         }
 
         .cover-expand-btn {
@@ -1691,6 +1744,7 @@
                             <!-- Custom Tab Controller -->
                             <div class="relative z-10 px-6 pt-6">
                                 <div class="flex items-center gap-1 rounded-xl bg-black/50 p-1 border border-white/5 w-fit">
+                                    <button type="button" class="feed-switch-btn active px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest text-slate-400" data-feed-control="auto">Auto</button>
                                     <button type="button" class="feed-switch-btn px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest text-slate-400" data-feed-control="stats">Stats</button>
                                     <button type="button" class="feed-switch-btn px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest text-slate-400" data-feed-control="json">JSON</button>
                                 </div>
@@ -2443,6 +2497,7 @@
     const feedButtons = document.querySelectorAll("[data-feed-control]");
 
     let activeFeed = "stats";
+    let autoTimer = null;
 
     function setActiveButton(mode) {
         feedButtons.forEach((button) => {
@@ -2457,16 +2512,29 @@
         });
     }
 
+    function stopAutoSwitch() {
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
+
+    function startAutoSwitch() {
+        stopAutoSwitch();
+        setActiveButton("auto");
+        autoTimer = setInterval(() => {
+            showFeedPanel(activeFeed === "stats" ? "json" : "stats");
+        }, 7000);
+    }
+
     feedButtons.forEach((button) => {
         button.addEventListener("click", () => {
             const control = button.dataset.feedControl;
+            if (control === "auto") { startAutoSwitch(); return; }
+            stopAutoSwitch();
             setActiveButton(control);
             showFeedPanel(control);
         });
     });
 
-    showFeedPanel("stats");
-    setActiveButton("stats");
+    startAutoSwitch();
 
     // ===== THEME TOGGLE =====
     const html = document.documentElement;
@@ -2491,6 +2559,18 @@
     themeBtn && themeBtn.addEventListener("click", () => {
         applyTheme(!html.classList.contains("light"));
     });
+
+    // ===== FLOATING HEADER ON SCROLL =====
+    const header = document.getElementById("siteHeader");
+
+    function updateHeader() {
+        if (!header) return;
+        const scrolled = window.scrollY > 60;
+        header.classList.toggle("is-floating", scrolled);
+    }
+
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    updateHeader();
 
     // ===== LEFT DRAWER =====
     const drawerOverlay = document.getElementById("drawerOverlay");
