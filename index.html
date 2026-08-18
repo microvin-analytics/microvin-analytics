@@ -1537,7 +1537,7 @@
     <div class="glass-header-inner max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
         <!-- Left: Hamburger + Logo -->
         <div class="flex items-center gap-3">
-            <button class="hamburger-btn" id="drawerOpen" type="button" aria-label="Open navigation menu" onclick="openDrawer()">
+            <button class="hamburger-btn" id="drawerOpen" type="button" aria-label="Open navigation menu">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
@@ -1691,7 +1691,6 @@
                             <!-- Custom Tab Controller -->
                             <div class="relative z-10 px-6 pt-6">
                                 <div class="flex items-center gap-1 rounded-xl bg-black/50 p-1 border border-white/5 w-fit">
-                                    <button type="button" class="feed-switch-btn active px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest text-slate-400" data-feed-control="auto">Auto</button>
                                     <button type="button" class="feed-switch-btn px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest text-slate-400" data-feed-control="stats">Stats</button>
                                     <button type="button" class="feed-switch-btn px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-widest text-slate-400" data-feed-control="json">JSON</button>
                                 </div>
@@ -2444,7 +2443,6 @@
     const feedButtons = document.querySelectorAll("[data-feed-control]");
 
     let activeFeed = "stats";
-    let autoTimer = null;
 
     function setActiveButton(mode) {
         feedButtons.forEach((button) => {
@@ -2459,30 +2457,16 @@
         });
     }
 
-    function stopAutoSwitch() {
-        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-    }
-
-    function startAutoSwitch() {
-        stopAutoSwitch();
-        setActiveButton("auto");
-        autoTimer = setInterval(() => {
-            showFeedPanel(activeFeed === "stats" ? "json" : "stats");
-        }, 7000);
-    }
-
     feedButtons.forEach((button) => {
         button.addEventListener("click", () => {
             const control = button.dataset.feedControl;
-            if (control === "auto") { startAutoSwitch(); return; }
-            stopAutoSwitch();
             setActiveButton(control);
             showFeedPanel(control);
         });
     });
 
-    showFeedPanel(activeFeed);
-    setActiveButton(activeFeed);
+    showFeedPanel("stats");
+    setActiveButton("stats");
 
     // ===== THEME TOGGLE =====
     const html = document.documentElement;
@@ -2525,9 +2509,6 @@
         drawerPanel.classList.remove("open");
         document.body.style.overflow = "";
     }
-
-    window.openDrawer = openDrawer;
-    window.closeDrawer = closeDrawer;
 
     drawerOpenBtn && drawerOpenBtn.addEventListener("click", openDrawer);
     drawerCloseBtn && drawerCloseBtn.addEventListener("click", closeDrawer);
