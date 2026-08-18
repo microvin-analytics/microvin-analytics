@@ -14,19 +14,6 @@
                 }
             } catch(e) {}
         })();
-        // ===== SCROLL REVEAL =====
-        const revealEls = document.querySelectorAll("[data-reveal-on-scroll]");
-        if (revealEls.length && "IntersectionObserver" in window) {
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add("revealed");
-                        revealObserver.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-            revealEls.forEach(el => revealObserver.observe(el));
-        }
     </script>
 
     <link rel="icon" type="image/svg+xml" href="vin-favicon.svg" />
@@ -1581,7 +1568,7 @@
     <div class="glass-header-inner max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
         <!-- Left: Hamburger + Logo -->
         <div class="flex items-center gap-3">
-            <button class="hamburger-btn" id="drawerOpen" aria-label="Open navigation menu">
+            <button class="hamburger-btn" id="drawerOpen" type="button" aria-label="Open navigation menu" onclick="openDrawer()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                     <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
@@ -2580,6 +2567,9 @@
         drawerPanel.classList.remove("open");
         document.body.style.overflow = "";
     }
+
+    window.openDrawer = openDrawer;
+    window.closeDrawer = closeDrawer;
 
     drawerOpenBtn && drawerOpenBtn.addEventListener("click", openDrawer);
     drawerCloseBtn && drawerCloseBtn.addEventListener("click", closeDrawer);
